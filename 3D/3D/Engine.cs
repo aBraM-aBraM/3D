@@ -52,12 +52,13 @@ namespace _3D
 		private void InitCube()
 		{
 			int amp = 20;
-			Vector3[] vertices = new Vector3[] { new Vector3(3, 3, 3) * amp, new Vector3(6, 3, 3)*amp, new Vector3(3, 6, 3) * amp, new Vector3(6, 6, 3) * amp };
-			Corner[] corners = new Corner[4];
+			Vector3[] vertices = new Vector3[] { new Vector3(3, 3, 3) * amp, new Vector3(6, 3, 3)*amp, new Vector3(3, 6, 3) * amp, new Vector3(6, 6, 3) * amp ,Vector3.zero};
+			Corner[] corners = new Corner[5];
 			corners[0] = new Corner(vertices[0], vertices[1], vertices[2]);
 			corners[1] = new Corner(vertices[1], vertices[0], vertices[3]);
 			corners[2] = new Corner(vertices[2], vertices[0], vertices[3]);
 			corners[3] = new Corner(vertices[3], vertices[1], vertices[2]);
+			corners[4] = new Corner(vertices[4], vertices[0], vertices[3]);
 			shape = new Shape(corners);
 		}
 
