@@ -16,6 +16,8 @@ namespace _3D
 		Pen p = new Pen(new SolidBrush(Color.Black));
 		Graphics g;
 
+		Engine engine;
+
 
 		public Form1()
 		{
@@ -33,7 +35,12 @@ namespace _3D
 		private void Form1_Paint(object sender, PaintEventArgs e)
 		{
 			g = e.Graphics;
-			Engine engine = new Engine(g,this);
+			engine = new Engine(g,this);
+		}
+
+		private void Form1_KeyDown(object sender, KeyEventArgs e)
+		{
+		
 		}
 	}
 

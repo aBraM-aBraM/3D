@@ -22,7 +22,10 @@ namespace _3D
 
 		Shape shape;
 
+		Corner chosenCorner;
+		int index;
 
+		bool isChoosing = true;
 
 		public Engine(Graphics gfx,Form1 f)
 		{
@@ -36,12 +39,90 @@ namespace _3D
 
 		private void Start()
 		{
+			index = 0;
 			DrawBackground();
 			InitShape();
 			UpdateScreen();
 		}
 
-		
+		public void HandleInput(object sender,KeyEventArgs e)
+		{
+			
+			if(chosenCorner == null)
+			{
+				chosenCorner= shape.vertices[index];
+			}
+			switch (e.KeyCode)
+			{
+				case Keys.Right:
+					if (isChoosing)
+					{
+						if (index != shape.vertices.Length - 1)
+						{
+							chosenCorner = shape.vertices[index + 1];
+						}
+						else
+						{
+							index = 0;
+							chosenCorner = shape.vertices[index];
+						}
+					}
+					if (!isChoosing)
+					{
+						chosenCorner.center += Vector3.forward;
+					}
+					break;
+				case Keys.Left:
+					if (isChoosing)
+					{
+						if (index != 0)
+						{
+							chosenCorner = shape.vertices[index - 1];
+						}
+						else
+						{
+							index = shape.vertices.Length - 1;
+							chosenCorner = shape.vertices[index];
+						}
+					}
+					if (!isChoosing)
+					{
+						chosenCorner.center -= Vector3.forward;
+					}
+					break;
+				case Keys.Up:
+					if (!isChoosing)
+					{
+						chosenCorner.center += Vector3.right;
+					}
+					break;
+				case Keys.Down:
+					if (!isChoosing)
+					{
+						chosenCorner.center -= Vector3.right;
+					}
+					break;
+				case Keys.W:
+					if (!isChoosing)
+					{
+						chosenCorner.center += Vector3.up;
+					}
+					break;
+				case Keys.S:
+					if (!isChoosing)
+					{
+						chosenCorner.center -= Vector3.up;
+					}
+					break;
+				case Keys.Enter:
+					chosenCorner = null;
+					isChoosing = !isChoosing;
+					break;
+			}
+			//UpdateScreen();
+			pen.Color = Color.Orange;
+			graphics.DrawEllipse(pen,chosenCorner.center.GetPoint().X,chosenCorner.center.GetPoint().Y, 2, 2);
+		}
 
 		public void Update()
 		{
@@ -54,7 +135,7 @@ namespace _3D
 		private void InitShape()
 		{
 			//shape = CreateBox(new Vector3(50, 50, 50), 50);
-			shape = CreatePolygon(new Vector3(50, 50, 50),8, 50, 50);
+			shape = CreatePolygon(new Vector3(40, 40, 40), 3,50, 50);
 		}
 		
 		private Shape CreateBox(Vector3 startPoint,float edgeSize)
@@ -102,7 +183,7 @@ namespace _3D
 			Corner[] corners = new Corner[numOfVertices * 2];
 			for (int i = 0; i < numOfVertices; i++)
 			{
-				vertices[i] = startPoint + new Vector3((float)Math.Cos(Math.PI * 2 / (float)numOfVertices * i + offset*Math.PI/180) * radius, 0, (float)Math.Sin(Math.PI * 2 / (float)numOfVertices * i + offset*Math.PI/180) * radius);
+				vertices[i] = startPoint + new Vector3((float)Math.Cos(Math.PI * 2 / (float)numOfVertices * i + offsetDegrees*Math.PI/180) * radius, 0, (float)Math.Sin(Math.PI * 2 / (float)numOfVertices * i + offsetDegrees*Math.PI/180) * radius);
 			}
 			for (int i = 0; i < numOfVertices; i++)
 			{
