@@ -32,9 +32,30 @@ namespace _3D
 		{
 			return new Vector3(amp * vector.x, amp * vector.y, amp * vector.z);
 		}
-		public static Vector3 operator +(Vector3 firstVector,Vector3 secondVector)
+		public static Vector3 operator /(Vector3 vector, float amp)
+		{
+			return new Vector3(vector.x / amp, vector.y / amp, vector.z / amp);
+		}
+		public static Vector3 operator +(Vector3 firstVector, Vector3 secondVector)
 		{
 			return new Vector3(firstVector.x + secondVector.x, firstVector.y + secondVector.y, firstVector.z + secondVector.z);
+		}
+		public static Vector3 operator -(Vector3 firstVector, Vector3 secondVector)
+		{
+			return new Vector3(firstVector.x - secondVector.x, firstVector.y - secondVector.y, firstVector.z - secondVector.z);
+		}
+		public static Vector3 operator +(Vector3 vector)
+		{
+			return vector;
+		}
+		public static Vector3 operator -(Vector3 vector)
+		{
+			return new Vector3(-vector.x, -vector.y, -vector.z);
+		}
+
+		public float Distance(Vector3 other)
+		{
+			return (other - this).Length;
 		}
 
 		public Point GetPoint()

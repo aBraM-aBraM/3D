@@ -34,7 +34,6 @@ namespace _3D
 		{
 			g = e.Graphics;
 			Engine engine = new Engine(g,this);
-			engine.Update();
 		}
 	}
 

@@ -46,6 +46,26 @@ namespace _3D
 			this.connections = connections;
 		}
 
+		public void AddConnection(Vector3 vertex)
+		{
+			if(connections == null)
+			{
+				connections = new Vector3[1];
+				connections[0] = vertex;
+			}
+			else
+			{
+				Vector3[] tmp = new Vector3[connections.Length + 1];
+				for (int i = 0; i < connections.Length; i++)
+				{
+					tmp[i] = connections[i];
+				}
+				tmp[tmp.Length - 1] = vertex;
+				connections = tmp;
+			}
+		}
+
+
 		public void IncVector(Vector3 vector)
 		{
 			center = center + vector;

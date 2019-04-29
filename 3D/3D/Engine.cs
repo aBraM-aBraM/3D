@@ -22,6 +22,8 @@ namespace _3D
 
 		Shape shape;
 
+
+
 		public Engine(Graphics gfx,Form1 f)
 		{
 			this.f = f;
@@ -34,12 +36,12 @@ namespace _3D
 
 		private void Start()
 		{
-			InitCube();
 			DrawBackground();
+			InitShape();
 			UpdateScreen();
 		}
 
-
+		
 
 		public void Update()
 		{
@@ -49,29 +51,120 @@ namespace _3D
 				}
 		}
 
-		private void InitCube()
+		private void InitShape()
 		{
-			int amp = 20;
-			Vector3[] vertices = new Vector3[] { new Vector3(3, 3, 3) * amp, new Vector3(6, 3, 3)*amp, new Vector3(3, 6, 3) * amp, new Vector3(6, 6, 3) * amp ,Vector3.zero};
-			Corner[] corners = new Corner[5];
-			corners[0] = new Corner(vertices[0], vertices[1], vertices[2]);
-			corners[1] = new Corner(vertices[1], vertices[0], vertices[3]);
-			corners[2] = new Corner(vertices[2], vertices[0], vertices[3]);
-			corners[3] = new Corner(vertices[3], vertices[1], vertices[2]);
-			corners[4] = new Corner(vertices[4], vertices[0], vertices[3]);
-			shape = new Shape(corners);
+			//shape = CreateBox(new Vector3(50, 50, 50), 50);
+			shape = CreatePolygon(new Vector3(50, 50, 50),8, 50, 50);
 		}
-
-		private void DrawCube()
+		
+		private Shape CreateBox(Vector3 startPoint,float edgeSize)
 		{
-			pen.Color = Color.Green;
-			for (int i = 0; i < shape.vertices.Length; i++)
+			Corner[] corners = new Corner[8];
+			Vector3[] vertices = new Vector3[8];
+			for (int i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < shape.vertices[i].connections.Length; j++)
+				switch (i)
 				{
-					
-					graphics.DrawLine(pen, shape.vertices[i].center.GetPoint(), shape.vertices[i].connections[j].GetPoint());
+					case 0:
+						vertices[i] = startPoint;
+						vertices[vertices.Length - i - 1] = startPoint + new Vector3(0, edgeSize, 0);
+						break;
+					case 1:
+						vertices[i] = startPoint + new Vector3(edgeSize, 0, 0);
+						vertices[vertices.Length - i - 1] = vertices[i] + new Vector3(0, edgeSize, 0);
+						break;
+					case 2:
+						vertices[i] = startPoint + new Vector3(0, 0, edgeSize);
+						vertices[vertices.Length - i - 1] = vertices[i] + new Vector3(0, edgeSize, 0);
+						break;
+					case 3:
+						vertices[i] = startPoint + new Vector3(edgeSize, 0, edgeSize);
+						vertices[vertices.Length - i - 1] = vertices[i] + new Vector3(0, edgeSize, 0);
+						break;
 				}
+			}
+			for (int i = 0; i < 8; i++)
+			{
+				corners[i] = new Corner(vertices[i]);
+				for (int j = 0; j < vertices.Length; j++)
+				{
+					if(vertices[j].Distance(corners[i].center) == edgeSize)
+					{
+						corners[i].AddConnection(vertices[j]);
+					}
+				}
+			}
+			return new Shape(corners);
+		}
+		private Shape CreatePolygon(Vector3 startPoint,int numOfVertices, float radius, float height, float offsetDegrees = 0)
+		{
+			Vector3[] vertices = new Vector3[numOfVertices * 2];
+			Corner[] corners = new Corner[numOfVertices * 2];
+			for (int i = 0; i < numOfVertices; i++)
+			{
+				vertices[i] = startPoint + new Vector3((float)Math.Cos(Math.PI * 2 / (float)numOfVertices * i + offset*Math.PI/180) * radius, 0, (float)Math.Sin(Math.PI * 2 / (float)numOfVertices * i + offset*Math.PI/180) * radius);
+			}
+			for (int i = 0; i < numOfVertices; i++)
+			{
+				vertices[i + numOfVertices] = vertices[i] + new Vector3(0, height, 0);
+			}
+			for (int i = 0; i < corners.Length; i++)
+			{
+				corners[i] = new Corner(vertices[i]);
+				for (int j = 0; j < vertices.Length; j++)
+				{
+					float edge = (float)Math.Sqrt(2 * radius * radius - 2 * radius * radius * Math.Cos(2 * Math.PI / numOfVertices));
+					if(vertices[j].Distance(corners[i].center) == radius || vertices[j].Distance(corners[i].center) == height || vertices[j].Distance(corners[i].center) == edge)
+					{
+						corners[i].AddConnection(vertices[j]);
+					}
+				}
+			}
+			return new Shape(corners);
+		}
+		private Shape RotateShape(Shape rotateShape,float degrees)
+		{
+			Vector3 center = Vector3.zero;
+			int index = 0;
+			for (index = 0; index < rotateShape.vertices.Length; index++)
+			{
+				center += new Vector3(rotateShape.vertices[index].center.x, rotateShape.vertices[index].center.y, rotateShape.vertices[index].center.z);
+			}
+			center /= index + 1;
+			pen.Color = Color.Purple;
+			graphics.DrawEllipse(pen, center.GetPoint().X, center.GetPoint().Y, 1, 1);
+			for (int i = 0; i < rotateShape.vertices.Length; i++)
+			{
+				float relativeX = rotateShape.vertices[i].center.x - center.x; // cosine
+				float relativeZ = rotateShape.vertices[i].center.z - center.z; // sine
+				float radius = (float)Math.Sqrt(relativeX * relativeX + relativeZ * relativeZ);
+				float currentDegree = (float)Math.Atan(relativeZ / relativeX);
+
+				float wantedDegree = currentDegree + (float)(Math.PI / 180) * degrees;
+				float wantedX = (float)Math.Cos(wantedDegree) * radius + center.x;
+				float wantedZ = (float)Math.Sin(wantedDegree) * radius + center.z;
+				rotateShape.vertices[i].center = new Vector3(wantedX, rotateShape.vertices[i].center.y, wantedZ);
+			}
+			return shape;
+		}
+		private void DrawShape(Shape drawShape)
+		{
+			//edges
+			pen.Color = Color.Green;
+			for (int i = 0; i < drawShape.vertices.Length; i++)
+			{
+				for (int j = 0; j < drawShape.vertices[i].connections.Length; j++)
+				{				
+					graphics.DrawLine(pen, drawShape.vertices[i].center.GetPoint(), drawShape.vertices[i].connections[j].GetPoint());
+				}
+			}
+
+			//vertices
+			pen.Color = Color.Red;
+			int circleSize = 2;
+			for (int i = 0; i < drawShape.vertices.Length; i++)
+			{
+				graphics.DrawEllipse(pen, drawShape.vertices[i].center.GetPoint().X, drawShape.vertices[i].center.GetPoint().Y, circleSize, circleSize);
 			}
 		}
 
@@ -99,8 +192,7 @@ namespace _3D
 		{
 			graphics.Clear(f.BackColor);
 			DrawBackground();
-			DrawCube();
-			//Brush b = new SolidBrush(Color.Red);
+			DrawShape(shape);
 		}
 	}
 }
